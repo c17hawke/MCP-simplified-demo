@@ -34,7 +34,7 @@ def web_search(query: str) -> str:
 @mcp.resource("resource://response_formatting_instructions")
 def response_formatting_instructions() -> str:
     """Provide guidelines for how the LLM should format its responses when using the tools."""
-    return """Markdown formatting instructions: 1. Use headings (##) for each section. 2. Use bullet points for lists. 3. Include URLs as hyperlinks. 4. For competitor lists, create a table with columns: Competitor, Strengths, Weaknesses, URL."""
+    return """Markdown formatting instructions: 1. Use headings (##) for each section. 2. Use bullet points for lists. 3. Include URLs as hyperlinks. 4. Use bold for important points. 5. Keep the response concise and informative. 6. Use tables if needed to present structured data clearly."""
 
 @mcp.prompt
 def main_prompt(query: str, formatting_instructions: str, search_results: str) -> str:
@@ -48,7 +48,7 @@ def main_prompt(query: str, formatting_instructions: str, search_results: str) -
     Returns:
         str: The prompt that will be used by the LLM to generate a response.
     """
-    return f"""You are a helpful assistant how takes the user query and search results and provides a concise and informative response. Use the following formatting guidelines: ```{formatting_instructions}```. Here is the user query: `{query}`. Here are the search results: ```{search_results}```. Please provide a well-formatted response based on the query and search results."""
+    return f"""You are a helpful assistant who takes the user query and search results and provides a concise and informative response. Use the following formatting guidelines: ```{formatting_instructions}```. Here is the user query: `{query}`. Here are the search results: ```{search_results}```. Please provide a well-formatted response based on the query and search results."""
 
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
