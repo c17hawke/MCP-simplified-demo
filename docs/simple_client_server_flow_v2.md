@@ -14,17 +14,32 @@ sequenceDiagram
     MCPServer-->>MCPClient: ListToolsResult
     MCPClient-->>Notebook: tools [web_search]
 
+    Note over Notebook: Build ToolUsage schema (Pydantic)
+
+    Notebook->>MCPClient: get_prompt("tool_selection_prompt", {query, tools, schema})
+    MCPClient->>MCPServer: GetPromptRequest
+    MCPServer-->>MCPClient: GetPromptResult
+    MCPClient-->>Notebook: tool_selection_prompt
+
+    Notebook->>Groq: ask_groq(tool_selection_prompt)
+    Note over Groq: llama-3.3-70b-versatile<br/>selects tools to use
+    Groq-->>Notebook: JSON array of ToolUsage
+
+    Note over Notebook: Parse JSON → tool_usages
+
+    loop For each tool_usage
+        Notebook->>MCPClient: call_tool(tool_usage.tool, tool_usage.args)
+        MCPClient->>MCPServer: CallToolRequest
+        MCPServer->>Tavily: Web Search (query)
+        Tavily-->>MCPServer: Search Results
+        MCPServer-->>MCPClient: CallToolResult
+        MCPClient-->>Notebook: search_results
+    end
+
     Notebook->>MCPClient: read_resource("resource://response_formatting_instructions")
     MCPClient->>MCPServer: ReadResourceRequest
     MCPServer-->>MCPClient: ReadResourceResult
     MCPClient-->>Notebook: formatting_instructions
-
-    Notebook->>MCPClient: call_tool("web_search", {query: "Who won the WB election?"})
-    MCPClient->>MCPServer: CallToolRequest
-    MCPServer->>Tavily: Web Search ("Who won the WB election?")
-    Tavily-->>MCPServer: Search Results
-    MCPServer-->>MCPClient: CallToolResult
-    MCPClient-->>Notebook: search_results
 
     Notebook->>MCPClient: get_prompt("main_prompt", {query, formatting_instructions, search_results})
     MCPClient->>MCPServer: GetPromptRequest
