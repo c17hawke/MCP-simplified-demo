@@ -37,6 +37,20 @@ def response_formatting_instructions() -> str:
     return """Markdown formatting instructions: 1. Use headings (##) for each section. 2. Use bullet points for lists. 3. Include URLs as hyperlinks. 4. Use bold for important points. 5. Keep the response concise and informative. 6. Use tables if needed to present structured data clearly."""
 
 @mcp.prompt
+def tool_selection_prompt(query: str, tools: list[dict], schema: str) -> str:
+    """Prompt to determine which tools to use based on the user query and available tools.
+
+    Args:
+        query (str): The user's search query.
+        tools (list[dict]): A list of available tools that the LLM can use.
+        schema (str): The expected JSON schema for the LLM's response.
+
+    Returns:
+        str: A prompt that instructs the LLM to select appropriate tools and format its response according to the provided schema.
+    """
+    return f"What tools would you use to answer the following question: `{query}`? Here is the list of available tools: `{tools}`. Your answer should be a JSON array of `{schema}` objects, where each object specifies a tool to use, the arguments to pass to that tool, and the reason for using it."
+
+@mcp.prompt
 def main_prompt(query: str, formatting_instructions: str, search_results: str) -> str:
     """The main prompt that the LLM will use to generate responses.
     
